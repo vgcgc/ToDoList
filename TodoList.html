@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <title>05-10</title>
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+        
+        body {
+            background-color: #F7F6F2;
+        }
+        
+        p {
+            text-align: center;
+            color: gray;
+        }
+        
+        #todolistBox {
+            margin-top: 8%;
+            margin-bottom: 15%;
+            margin-left: 27%;
+            margin-right: 27%;
+        }
+        
+        #todolistapp {
+            margin-top: 10px;
+            margin-bottom: 10px;
+            margin-left: 10px;
+            margin-right: 10px;
+            box-shadow: 0 5px 18px rgba(0, 0, 0, 0.2);
+        }
+        
+        ul {
+            padding: 0;
+            margin-top: 20px;
+            margin-bottom: 10px;
+            margin-left: 10px;
+            margin-right: 10px;
+            box-shadow: 0 5px 18px rgba(0, 0, 0, 0.2);
+        }
+        
+        ul li {
+            list-style: none;
+            cursor: pointer;
+            position: relative;
+            padding: 8px 8px 8px 40px;
+            background: #F0F8FF;
+            font-size: 14px;
+            transition: 0.2s;
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
+            border-bottom: 1px solid #FDEFEF;
+        }
+        
+        ul li:last-child {
+            border-bottom: none;
+        }
+        
+        ul li:hover {
+            background: #FDEFEF;
+        }
+        
+        ul li.checked {
+            background: #BBB;
+            color: #fff;
+            text-decoration: line-through;
+        }
+        
+        ul li.checked::before {
+            content: '';
+            position: absolute;
+            border-color: #fff;
+            border-style: solid;
+            border-width: 0px 1px 1px 0px;
+            top: 10px;
+            left: 16px;
+            transform: rotate(45deg);
+            height: 8px;
+            width: 8px;
+        }
+        
+        .close {
+            position: absolute;
+            right: 0;
+            top: 0;
+            padding: 8px 14px 8px 14px;
+            text-align: center;
+        }
+        
+        .close:hover {
+            background-color: #f44336;
+            color: white;
+        }
+        
+        .header {
+            background-color: #28527A;
+            color: #FF9292;
+            text-align: center;
+            background-clip: content-box;
+            margin: 0;
+        }
+        
+        .header h1 {
+            padding-top: 0.5em;
+        }
+        
+        .header:after {
+            content: "";
+            display: table;
+            clear: both;
+        }
+        
+        .input {
+            border: none;
+            width: 75%;
+            height: 35px;
+            padding: 10px;
+            float: left;
+            font-size: 16px;
+            outline: none;
+        }
+        
+        .addbutton {
+            padding: 10px;
+            width: 25%;
+            height: 35px;
+            background: #F0F8FF;
+            color: #FF9292;
+            float: left;
+            text-align: center;
+            font-size: 13px;
+            cursor: pointer;
+            transition: 0.3s;
+            font-weight: bold;
+        }
+        
+        .addbutton:hover {
+            background-color: #bbb;
+        }
+        
+        .completed {
+            text-decoration: none;
+        }
+    </style>
+    <script src="https://unpkg.com/vue@2.5.16/dist/vue.js"></script>
+</head>
+
+<body>
+    <div id="todolistBox">
+        <div id="todolistapp">
+            <div id="header" class="header">
+                <h1>TO DO LIST</h1>
+                <input class="input" type="text" id="task" v-model.trim="todo" placeholder="add..." v-on:keyup.enter="addTodo">
+                <span class="addbutton" v-on:click="addTodo">추 가</span>
+            </div>
+        </div>
+        <ul id="todolist">
+            <li v-for="a in todolist" v-bind:class="checked(a.done)" v-on:click="doneToggle(a.id)">
+                <span>{{a.todo}}</span>
+                <span v-if="a.done">(완료)</span>
+                <span class="close" v-on:click.stop="deleteTodo(a.id)">&#x00D7;</span>
+            </li>
+        </ul>
+        <p id="date"></p>
+    </div>
+
+    <script type="text/javascript">
+        //오늘 날짜 구하기
+        var now = new Date();
+        document.getElementById('date').innerHTML = "Today is " + now.getFullYear() + "." + now.getMonth() + "." + now.getDay()
+
+        var vm = new Vue({
+            el: "#todolistBox",
+            //기본값
+            data: {
+                todo: "",
+                todolist: [{
+                    id: 1,
+                    todo: "테스트1",
+                    done: false
+                }, {
+                    id: 2,
+                    todo: "테스트2",
+                    done: false
+                }, {
+                    id: 3,
+                    todo: "테스트3",
+                    done: false
+                }, {
+                    id: 4,
+                    todo: "테스트4",
+                    done: false
+                }]
+            },
+            methods: {
+                //완료 검사
+                checked: function(done) {
+                    if (done) return {
+                        checked: true
+                    };
+                    else return {
+                        checked: false
+                    };
+                },
+                //List 추가
+                addTodo: function(e) {
+                    if (this.todo.trim() !== "") {
+                        this.todolist.push({
+                            id: new Date().getTime(),
+                            todo: this.todo.trim(),
+                            done: false
+                        });
+                        this.todo = "";
+                    }
+                },
+                //List 삭제
+                deleteTodo: function(id) {
+                    var index = this.todolist.findIndex(function(item) {
+                        return item.id === id;
+                    })
+                    this.todolist.splice(index, 1);
+                },
+                //완료 Toggle
+                doneToggle: function(id) {
+                    var index = this.todolist.findIndex(function(item) {
+                        return item.id === id;
+                    })
+                    this.todolist[index].done = !this.todolist[index].done;
+                }
+            }
+        })
+    </script>
+</body>
+
+</html>
